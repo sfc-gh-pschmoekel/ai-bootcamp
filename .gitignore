@@ -1,3 +1,6 @@
+# Snowflake Workspaces (managed) - per-user Notebook settings
+.snowflake/settings.json
+.snowflake/.folder
 .DS_Store
 .ipynb_checkpoints/
 __pycache__/
