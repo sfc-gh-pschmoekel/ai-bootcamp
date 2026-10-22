@@ -1,0 +1,702 @@
+name: SATURDAY_OPS_SV
+description: "Saturday Ops: UCLA athletic department game-day business plus conference-wide play style. Synthetic data."
+tables:
+  - name: FANS
+    description: "UCLA fan base: season ticket holders, single-game buyers, alumni, students."
+    base_table:
+      database: SATURDAY_OPS
+      schema: RAW
+      table: FANS
+    primary_key:
+      columns:
+        - FAN_ID
+    dimensions:
+      - name: AGE_BAND
+        expr: AGE_BAND
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: DONOR_TIER
+        description: "NONE, BRONZE, SILVER or GOLD"
+        expr: DONOR_TIER
+        data_type: VARCHAR(6)
+        access_modifier: public_access
+      - name: FAN_ID
+        expr: FAN_ID
+        data_type: "NUMBER(18,0)"
+        access_modifier: public_access
+      - name: FAN_SEGMENT
+        synonyms:
+          - fan type
+          - season ticket holder
+        description: "SEASON_TICKET, SINGLE_GAME, ALUMNI or STUDENT"
+        expr: FAN_SEGMENT
+        data_type: VARCHAR(13)
+        access_modifier: public_access
+  - name: FAN_CASES
+    synonyms:
+      - fan service tickets
+      - complaints
+      - support cases
+    description: Fan service tickets classified with AI_CLASSIFY and AI_EXTRACT.
+    base_table:
+      database: SATURDAY_OPS
+      schema: ANALYTICS
+      table: TICKET_INSIGHTS
+    primary_key:
+      columns:
+        - CASE_ID
+    dimensions:
+      - name: CASE_ID
+        expr: CASE_ID
+        data_type: "NUMBER(18,0)"
+        access_modifier: public_access
+      - name: CASE_STATUS
+        expr: STATUS
+        data_type: VARCHAR(6)
+        access_modifier: public_access
+      - name: COMPLAINT_CATEGORY
+        synonyms:
+          - complaint type
+          - issue category
+        description: "PARKING, SEATING, REFUND, ACCESSIBILITY, CONCESSIONS, TICKETING_APP or SECURITY"
+        expr: CATEGORY
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: GAME_ID
+        expr: GAME_ID
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: GATE
+        expr: GATE
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: ISSUE_SUMMARY
+        expr: ISSUE_SUMMARY
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+    metrics:
+      - name: COMPLAINT_COUNT
+        synonyms:
+          - number of complaints
+          - ticket volume
+        expr: COUNT(fan_cases.CASE_ID)
+        access_modifier: public_access
+  - name: FAN_FEEDBACK
+    synonyms:
+      - fan surveys
+      - survey responses
+    description: Post-game fan surveys scored with AI_SENTIMENT.
+    base_table:
+      database: SATURDAY_OPS
+      schema: ANALYTICS
+      table: FAN_INSIGHTS
+    primary_key:
+      columns:
+        - SURVEY_ID
+    dimensions:
+      - name: FAN_ID
+        expr: FAN_ID
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: FOOD_SENTIMENT
+        expr: FOOD_SENTIMENT
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: GAME_ID
+        expr: GAME_ID
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: OVERALL_SENTIMENT
+        expr: OVERALL_SENTIMENT
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: PARKING_SENTIMENT
+        expr: PARKING_SENTIMENT
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: PRICE_SENTIMENT
+        expr: PRICE_SENTIMENT
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: SEATS_SENTIMENT
+        expr: SEATS_SENTIMENT
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: SURVEY_COMMENT
+        expr: COMMENT
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: SURVEY_ID
+        expr: SURVEY_ID
+        data_type: "NUMBER(18,0)"
+        access_modifier: public_access
+      - name: TEAM_SENTIMENT
+        expr: TEAM_SENTIMENT
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+    facts:
+      - name: SENTIMENT_SCORE
+        description: "1 positive, 0 neutral or mixed, -1 negative"
+        expr: SENTIMENT_SCORE
+        data_type: "NUMBER(1,0)"
+        access_modifier: public_access
+      - name: SURVEY_RATING
+        expr: OVERALL_RATING
+        data_type: FLOAT
+        access_modifier: public_access
+    metrics:
+      - name: AVG_FAN_SENTIMENT
+        synonyms:
+          - fan mood
+        expr: AVG(fan_feedback.sentiment_score)
+        access_modifier: public_access
+      - name: AVG_SURVEY_RATING
+        expr: AVG(fan_feedback.survey_rating)
+        access_modifier: public_access
+      - name: SURVEY_COUNT
+        expr: COUNT(fan_feedback.SURVEY_ID)
+        access_modifier: public_access
+  - name: HOME_GAMES
+    synonyms:
+      - game day
+      - home game business
+    description: Game-day business results for each UCLA home game at the Rose Bowl.
+    base_table:
+      database: SATURDAY_OPS
+      schema: ANALYTICS
+      table: GAME_BUSINESS_SUMMARY
+    primary_key:
+      columns:
+        - GAME_ID
+    dimensions:
+      - name: GAME_ID
+        expr: GAME_ID
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: HOME_GAME_DATE
+        expr: GAME_DATE
+        data_type: DATE
+        access_modifier: public_access
+      - name: HOME_OPPONENT
+        synonyms:
+          - opponent
+          - visiting team
+        expr: OPPONENT
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: HOME_RESULT
+        synonyms:
+          - UCLA result
+        description: W or L for UCLA
+        expr: RESULT
+        data_type: VARCHAR(1)
+        access_modifier: public_access
+      - name: HOME_WEATHER
+        description: "CLEAR, RAIN, HEAT or COLD"
+        expr: WEATHER
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: HOME_WEEK
+        synonyms:
+          - home game week
+        expr: SEASON_WEEK
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: IS_RIVALRY
+        synonyms:
+          - rivalry game
+        expr: IS_RIVALRY
+        data_type: BOOLEAN
+        access_modifier: public_access
+      - name: KICKOFF_WINDOW
+        synonyms:
+          - kickoff time
+        description: "NOON, AFTERNOON or NIGHT"
+        expr: KICKOFF_WINDOW
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: OPPONENT_RANK
+        expr: OPPONENT_RANK
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: OPPONENT_STYLE
+        synonyms:
+          - opponent play style
+          - opponent offense
+          - air raid opponents
+        description: Play style of the visiting opponent. Use this for attendance or revenue by opponent style.
+        expr: OPPONENT_STYLE
+        data_type: VARCHAR(16)
+        access_modifier: public_access
+    facts:
+      - name: ATTENDANCE
+        description: Tickets scanned at the gate
+        expr: ATTENDANCE
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: CAPACITY
+        expr: CAPACITY
+        data_type: "NUMBER(5,0)"
+        access_modifier: public_access
+      - name: CONCESSION_REVENUE
+        expr: CONCESSION_REVENUE
+        data_type: "NUMBER(38,2)"
+        access_modifier: public_access
+      - name: DONATIONS_NEXT_7D
+        description: Donations in the 7 days starting on game day
+        expr: DONATIONS_NEXT_7D
+        data_type: FLOAT
+        access_modifier: public_access
+      - name: MERCH_MARGIN
+        expr: MERCH_MARGIN
+        data_type: "NUMBER(38,2)"
+        access_modifier: public_access
+      - name: MERCH_REVENUE
+        expr: MERCH_REVENUE
+        data_type: "NUMBER(38,2)"
+        access_modifier: public_access
+      - name: Q4_CONCESSION_REVENUE
+        expr: Q4_CONCESSION_REVENUE
+        data_type: "NUMBER(38,2)"
+        access_modifier: public_access
+      - name: TICKETS_SOLD
+        expr: TICKETS_SOLD
+        data_type: "NUMBER(18,0)"
+        access_modifier: public_access
+      - name: TICKET_REVENUE
+        expr: TICKET_REVENUE
+        data_type: FLOAT
+        access_modifier: public_access
+    metrics:
+      - name: ATTENDANCE_PCT
+        synonyms:
+          - fill rate
+          - capacity utilization
+        description: Scanned attendance divided by Rose Bowl capacity
+        expr: "SUM(home_games.attendance) / NULLIF(SUM(home_games.capacity), 0)"
+        access_modifier: public_access
+      - name: CONCESSION_REVENUE_TOTAL
+        expr: SUM(home_games.concession_revenue)
+        access_modifier: public_access
+      - name: DONATIONS_AFTER_GAME
+        synonyms:
+          - post-game giving
+          - donations
+        expr: SUM(home_games.donations_next_7d)
+        access_modifier: public_access
+      - name: MERCH_REVENUE_TOTAL
+        expr: SUM(home_games.merch_revenue)
+        access_modifier: public_access
+      - name: NO_SHOW_RATE
+        expr: "1 - SUM(home_games.attendance) / NULLIF(SUM(home_games.tickets_sold), 0)"
+        access_modifier: public_access
+      - name: PER_CAP_SPEND
+        synonyms:
+          - per cap
+          - spend per fan
+        description: Concession plus merch revenue per attendee
+        expr: "SUM(home_games.concession_revenue + home_games.merch_revenue) / NULLIF(SUM(home_games.attendance), 0)"
+        access_modifier: public_access
+      - name: Q4_CONCESSION_SHARE
+        description: Share of concession revenue sold in the 4th quarter
+        expr: "SUM(home_games.q4_concession_revenue) / NULLIF(SUM(home_games.concession_revenue), 0)"
+        access_modifier: public_access
+      - name: TICKET_REVENUE_TOTAL
+        expr: SUM(home_games.ticket_revenue)
+        access_modifier: public_access
+      - name: TOTAL_ATTENDANCE
+        expr: SUM(home_games.attendance)
+        access_modifier: public_access
+      - name: TOTAL_REVENUE
+        synonyms:
+          - game day revenue
+        expr: SUM(home_games.ticket_revenue + home_games.concession_revenue + home_games.merch_revenue)
+        access_modifier: public_access
+  - name: TEAMS
+    synonyms:
+      - schools
+      - programs
+    description: The 12 teams in the conference. UCLA is the home team.
+    base_table:
+      database: SATURDAY_OPS
+      schema: RAW
+      table: TEAMS
+    primary_key:
+      columns:
+        - TEAM_ID
+    dimensions:
+      - name: COACH
+        synonyms:
+          - head coach
+        expr: COACH_ALIAS
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: MASCOT
+        expr: MASCOT
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: SCHOOL_NAME
+        synonyms:
+          - team
+          - school
+          - program
+        description: "Team name, for example UCLA or BYU"
+        expr: SCHOOL_NAME
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: STADIUM
+        expr: STADIUM
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: TEAM_ID
+        expr: TEAM_ID
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+  - name: TEAM_GAMES
+    synonyms:
+      - box scores
+      - game stats
+    description: One row per team per game with stats and AI-extracted recap and press conference insights.
+    base_table:
+      database: SATURDAY_OPS
+      schema: ANALYTICS
+      table: TEAM_GAME_RESULTS
+    primary_key:
+      columns:
+        - GAME_ID
+        - TEAM_ID
+    dimensions:
+      - name: COACH_CLAIMS_RUN_FIRST
+        expr: COACH_CLAIMS_RUN_FIRST
+        data_type: BOOLEAN
+        access_modifier: public_access
+      - name: COACH_STATED_PLAN
+        synonyms:
+          - game plan
+        expr: COACH_STATED_PLAN
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: COACH_TONE
+        expr: COACH_TONE
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: GAME_DATE
+        expr: GAME_DATE
+        data_type: DATE
+        access_modifier: public_access
+      - name: GAME_ID
+        expr: GAME_ID
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: GAME_MEDIA_STYLE
+        description: AI play style label for this single game recap
+        expr: MEDIA_STYLE_LABEL
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: IS_HOME
+        expr: IS_HOME
+        data_type: BOOLEAN
+        access_modifier: public_access
+      - name: KEY_PLAYER
+        expr: KEY_PLAYER
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: OPPONENT
+        expr: OPPONENT
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: RESULT
+        synonyms:
+          - win or loss
+          - outcome
+        description: W or L from this team perspective
+        expr: RESULT
+        data_type: VARCHAR(1)
+        access_modifier: public_access
+      - name: SEASON_WEEK
+        synonyms:
+          - week
+        expr: SEASON_WEEK
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: TEAM_ID
+        expr: TEAM_ID
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: TURNING_POINT
+        expr: TURNING_POINT
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: WEATHER
+        expr: WEATHER
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+    facts:
+      - name: EXPLOSIVE_PLAYS
+        description: Plays of 20 or more yards
+        expr: EXPLOSIVE_PLAYS
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: FOURTH_DOWN_ATTEMPTS
+        expr: FOURTH_DOWN_ATT
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: PASS_ATTEMPTS
+        expr: PASS_ATT
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: PLAYS
+        expr: PLAYS
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: POINTS_AGAINST
+        expr: POINTS_AGAINST
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: POINTS_FOR
+        expr: POINTS_FOR
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: RUSH_ATTEMPTS
+        expr: RUSH_ATT
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: SECOND_HALF_PASS_ATTEMPTS
+        expr: SECOND_HALF_PASS_ATT
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: SECOND_HALF_RUSH_ATTEMPTS
+        expr: SECOND_HALF_RUSH_ATT
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: TURNOVERS
+        expr: TURNOVERS
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+    metrics:
+      - name: AVG_POINTS_SCORED
+        expr: AVG(team_games.points_for)
+        access_modifier: public_access
+      - name: EXPLOSIVE_PLAY_RATE
+        synonyms:
+          - big play rate
+        expr: "SUM(team_games.explosive_plays) / NULLIF(SUM(team_games.plays), 0)"
+        access_modifier: public_access
+      - name: FOURTH_DOWN_ATTEMPTS_PER_GAME
+        synonyms:
+          - fourth down aggressiveness
+        expr: AVG(team_games.fourth_down_attempts)
+        access_modifier: public_access
+      - name: GAMES_PLAYED
+        expr: COUNT(team_games.GAME_ID)
+        access_modifier: public_access
+      - name: PASS_RATE
+        synonyms:
+          - pass percentage
+        description: Share of offensive plays that were passes
+        expr: "SUM(team_games.pass_attempts) / NULLIF(SUM(team_games.pass_attempts + team_games.rush_attempts), 0)"
+        access_modifier: public_access
+      - name: PLAYS_PER_GAME
+        synonyms:
+          - tempo
+          - pace
+        expr: AVG(team_games.plays)
+        access_modifier: public_access
+      - name: SECOND_HALF_PASS_RATE
+        expr: |-
+          SUM(team_games.second_half_pass_attempts)
+                / NULLIF(SUM(team_games.second_half_pass_attempts + team_games.second_half_rush_attempts), 0)
+        access_modifier: public_access
+      - name: WIN_PCT
+        synonyms:
+          - win percentage
+          - win rate
+        expr: "AVG(IFF(team_games.RESULT = 'W', 1, 0))"
+        access_modifier: public_access
+  - name: TEAM_STYLE
+    synonyms:
+      - play style profile
+      - team identity
+    description: "Season play style per team: what the stats say vs what the media and coach say."
+    base_table:
+      database: SATURDAY_OPS
+      schema: ANALYTICS
+      table: TEAM_STYLE_PROFILE
+    primary_key:
+      columns:
+        - TEAM_ID
+    dimensions:
+      - name: MEDIA_STYLE_LABEL
+        synonyms:
+          - media style
+        description: "Play style the media recaps describe, classified by AI"
+        expr: MEDIA_STYLE_LABEL
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: SAYS_VS_DOES_FLAG
+        synonyms:
+          - says vs does
+          - claims run first but passes
+        description: TRUE when the coach claims run-first but the team passes on more than 55% of second-half plays
+        expr: SAYS_VS_DOES_FLAG
+        data_type: BOOLEAN
+        access_modifier: public_access
+      - name: SEASON_IDENTITY
+        description: AI summary of the season from game recaps
+        expr: SEASON_IDENTITY
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: STAT_STYLE_LABEL
+        synonyms:
+          - play style
+          - offensive style
+          - offense type
+          - style
+        description: "Play style derived from stats: AIR_RAID, TEMPO_SPREAD, GROUND_AND_POUND, DEFENSIVE_GRIND, BALANCED"
+        expr: STAT_STYLE_LABEL
+        data_type: VARCHAR(16)
+        access_modifier: public_access
+      - name: TEAM_ID
+        expr: TEAM_ID
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+    facts:
+      - name: RUN_FIRST_CLAIM_RATE
+        description: Share of press conferences where the coach claims to be run-first
+        expr: RUN_FIRST_CLAIM_RATE
+        data_type: "NUMBER(38,6)"
+        access_modifier: public_access
+      - name: SEASON_PASS_RATE
+        description: Season pass rate
+        expr: PASS_RATE
+        data_type: "NUMBER(38,6)"
+        access_modifier: public_access
+      - name: SEASON_SECOND_HALF_PASS_RATE
+        description: Season second-half pass rate
+        expr: SECOND_HALF_PASS_RATE
+        data_type: "NUMBER(38,6)"
+        access_modifier: public_access
+  - name: TICKETS
+    description: One row per ticket sold for UCLA home games.
+    base_table:
+      database: SATURDAY_OPS
+      schema: RAW
+      table: TICKET_SALES
+    primary_key:
+      columns:
+        - TICKET_ID
+    dimensions:
+      - name: FAN_ID
+        expr: FAN_ID
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: GAME_ID
+        expr: GAME_ID
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: PURCHASE_CHANNEL
+        expr: PURCHASE_CHANNEL
+        data_type: VARCHAR(6)
+        access_modifier: public_access
+      - name: SEAT_TIER
+        description: "LOWER, UPPER, PREMIUM or STUDENT"
+        expr: SEAT_TIER
+        data_type: VARCHAR(7)
+        access_modifier: public_access
+      - name: SECTION
+        expr: SECTION
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: TICKET_ID
+        expr: TICKET_ID
+        data_type: "NUMBER(20,0)"
+        access_modifier: public_access
+    facts:
+      - name: TICKET_PRICE
+        expr: PRICE
+        data_type: FLOAT
+        access_modifier: public_access
+    metrics:
+      - name: AVG_TICKET_PRICE
+        expr: AVG(tickets.ticket_price)
+        access_modifier: public_access
+relationships:
+  - name: CASES_TO_HOME_GAMES
+    left_table: FAN_CASES
+    right_table: HOME_GAMES
+    relationship_columns:
+      - left_column: GAME_ID
+        right_column: GAME_ID
+  - name: FEEDBACK_TO_FANS
+    left_table: FAN_FEEDBACK
+    right_table: FANS
+    relationship_columns:
+      - left_column: FAN_ID
+        right_column: FAN_ID
+  - name: FEEDBACK_TO_HOME_GAMES
+    left_table: FAN_FEEDBACK
+    right_table: HOME_GAMES
+    relationship_columns:
+      - left_column: GAME_ID
+        right_column: GAME_ID
+  - name: TEAM_GAMES_TO_TEAMS
+    left_table: TEAM_GAMES
+    right_table: TEAMS
+    relationship_columns:
+      - left_column: TEAM_ID
+        right_column: TEAM_ID
+  - name: TEAM_STYLE_TO_TEAMS
+    left_table: TEAM_STYLE
+    right_table: TEAMS
+    relationship_columns:
+      - left_column: TEAM_ID
+        right_column: TEAM_ID
+  - name: TICKETS_TO_FANS
+    left_table: TICKETS
+    right_table: FANS
+    relationship_columns:
+      - left_column: FAN_ID
+        right_column: FAN_ID
+  - name: TICKETS_TO_HOME_GAMES
+    left_table: TICKETS
+    right_table: HOME_GAMES
+    relationship_columns:
+      - left_column: GAME_ID
+        right_column: GAME_ID
+module_custom_instructions:
+  sql_generation: "UCLA is the home team; we, our and us mean UCLA. Business data (tickets, attendance, revenue, concessions, merch, donations, fan surveys, fan service tickets) exists only for UCLA home games at the Rose Bowl in the 2025 season. Football stats and play styles exist for all 12 teams. For questions that combine home game business metrics (attendance, revenue, donations, complaints, sentiment) with opponent play style, use home_games.opponent_style directly and do not join team_style. Show percentages rounded to 1 decimal place."
+verified_queries:
+  - name: ATTENDANCE_BY_HOME_GAME
+    sql: "SELECT home_week, home_opponent, ROUND(SUM(attendance) / SUM(capacity) * 100, 1) AS attendance_pct, ROUND((1 - SUM(attendance) / SUM(tickets_sold)) * 100, 1) AS no_show_rate FROM home_games GROUP BY home_week, home_opponent ORDER BY home_week"
+    question: What was the attendance percentage and no-show rate for each home game?
+    use_as_onboarding_question: true
+  - name: REVENUE_BY_KICKOFF
+    sql: "SELECT kickoff_window, SUM(ticket_revenue + concession_revenue + merch_revenue) AS total_revenue FROM home_games GROUP BY kickoff_window ORDER BY total_revenue DESC"
+    question: Total game day revenue by kickoff window
+  - name: RIVALRY_VS_OTHER_REVENUE
+    sql: "SELECT is_rivalry, SUM(ticket_revenue + concession_revenue + merch_revenue) / SUM(attendance) AS revenue_per_attendee FROM home_games GROUP BY is_rivalry"
+    question: How does revenue per attendee in the USC rivalry game compare to other home games?
+  - name: GIVING_AFTER_WINS_LOSSES
+    sql: "SELECT home_result, AVG(donations_next_7d) AS avg_donations_next_7_days FROM home_games GROUP BY home_result"
+    question: Do donations go up after wins compared to losses?
+    use_as_onboarding_question: true
+  - name: TEAM_PLAY_STYLES
+    sql: "SELECT t.school_name, s.stat_style_label, ROUND(SUM(g.pass_attempts) / SUM(g.pass_attempts + g.rush_attempts) * 100, 1) AS pass_rate_pct FROM team_games AS g JOIN teams AS t ON g.team_id = t.team_id JOIN team_style AS s ON s.team_id = t.team_id GROUP BY t.school_name, s.stat_style_label ORDER BY pass_rate_pct DESC"
+    question: What is each team play style and pass rate?
+    use_as_onboarding_question: true
+  - name: UCLA_WIN_PCT_BY_OPPONENT_STYLE
+    sql: "SELECT os.stat_style_label AS opponent_style, AVG(IFF(g.result = 'W', 1, 0)) AS win_pct FROM team_games AS g JOIN teams AS t ON g.team_id = t.team_id JOIN teams AS o ON o.school_name = g.opponent JOIN team_style AS os ON os.team_id = o.team_id WHERE t.school_name = 'UCLA' GROUP BY os.stat_style_label"
+    question: What is UCLA win percentage against each opponent play style?
+  - name: SAYS_VS_DOES
+    sql: "SELECT t.school_name, t.coach, s.run_first_claim_rate, s.season_second_half_pass_rate FROM team_style AS s JOIN teams AS t ON s.team_id = t.team_id WHERE s.says_vs_does_flag = TRUE"
+    question: Which coaches say they are run-first but actually pass a lot?
+    use_as_onboarding_question: true
+  - name: ATTENDANCE_VS_AIR_RAID
+    sql: "SELECT IFF(opponent_style = 'AIR_RAID', 'AIR_RAID', 'OTHER') AS opponent_group, SUM(attendance) / SUM(capacity) AS attendance_pct FROM home_games GROUP BY opponent_group"
+    question: Does attendance go up against air raid teams?
+  - name: SENTIMENT_BY_WEEK
+    sql: "SELECT h.home_week, h.home_opponent, AVG(f.sentiment_score) AS avg_fan_sentiment FROM fan_feedback AS f JOIN home_games AS h ON f.game_id = h.game_id GROUP BY h.home_week, h.home_opponent ORDER BY h.home_week"
+    question: Average fan sentiment by home game week
+  - name: MIAMI_COMPLAINTS
+    sql: "SELECT c.complaint_category, COUNT(c.case_id) AS complaint_count FROM fan_cases AS c JOIN home_games AS h ON c.game_id = h.game_id WHERE h.home_opponent = 'Miami' GROUP BY c.complaint_category ORDER BY complaint_count DESC LIMIT 3"
+    question: What were the top complaint categories at the Miami game?
