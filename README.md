@@ -7,7 +7,7 @@ The running example is **Saturday Ops**: the game-day business of the UCLA athle
 | Session | Topics | Status |
 |---|---|---|
 | [Day 1](day1/) | Semantic Views, Cortex Search, Cortex AI Functions | Available |
-| [Day 2](day2/) | Cortex Agents, CoWork, AI/BI dashboards, keeping the semantic layer the source of truth | Coming soon |
+| [Day 2](day2/) | Cortex Agents, Agent Studio, REST API, managed MCP, CoWork, AI/BI dashboards | Available |
 
 ## Quickstart (Day 1)
 

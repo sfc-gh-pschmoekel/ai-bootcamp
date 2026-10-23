@@ -1,0 +1,22 @@
+definition_version: 2
+entities:
+  game_day_command_center:
+    type: snowflake-app
+    identifier:
+      name: GAME_DAY_COMMAND_CENTER
+      database: SATURDAY_OPS
+      schema: AGENTS
+    artifacts:
+      - src: ./*
+        dest: ./
+        ignore:
+          - node_modules
+          - .env*
+          - __pycache__
+          - "*.pyc"
+          - .next
+          - .git
+          - snowflake.log
+          - tsconfig.tsbuildinfo
+          - output
+    query_warehouse: SATURDAY_OPS_WH
