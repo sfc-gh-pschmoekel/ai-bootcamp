@@ -29,7 +29,7 @@ export function OverviewTab() {
   const kpis = useQuery({ queryKey: ["kpis"], queryFn: () => fetchJson<Kpis>("/api/kpis") })
   const games = useQuery({ queryKey: ["games"], queryFn: () => fetchJson<Game[]>("/api/games") })
   const error = kpis.error ?? games.error
-  const chart = (games.data ?? []).map((g) => ({ ...g, label: `Wk ${g.week} ${g.opponent}` }))
+  const chart = (games.data ?? []).map((g) => ({ label: `Wk ${g.week} ${g.opponent}`, revenue: g.revenue }))
 
   return (
     <div className="space-y-6">
