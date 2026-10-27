@@ -1,0 +1,7 @@
+version: 1
+artifacts:
+  - path: SATURDAY_OPS_SV.sv.yaml
+    type: semantic_view
+    targets:
+      default:
+        object: SATURDAY_OPS.ANALYTICS.SATURDAY_OPS_SV
